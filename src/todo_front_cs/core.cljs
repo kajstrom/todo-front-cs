@@ -11,15 +11,28 @@
 
 ;; -------------------------
 ;; Views
+(defn todo-list-item
+  [todo]
+  [:div
+   [:input {:type "checkbox"
+            :checked (get todo "done")}]
+   [:span (get todo "description")]])
 
-(defn home-page []
-  [:div [:h2 "Welcome to TODO"]])
+(defn todo-list
+  []
+  [:div (map todo-list-item @todos)])
+
+
+(defn todo-app []
+  (get-todos)
+  [:div [:h2 "Welcome to the TODO app"]
+   [todo-list]])
 
 ;; -------------------------
 ;; Initialize app
 
 (defn mount-root []
-  (r/render [home-page] (.getElementById js/document "app")))
+  (r/render [todo-app] (.getElementById js/document "app")))
 
 (defn init! []
   (mount-root))
