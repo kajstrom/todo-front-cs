@@ -6,6 +6,7 @@
 
 
 (def todos (r/atom []))
+(def todo-to-add (r/atom ""))
 (defn get-todos
   []
   (ajax/GET api-url
@@ -30,11 +31,20 @@
   []
   [:div (map todo-list-item @todos)])
 
+(defn add-todo-form
+  []
+  [:div
+   [:h3 "Add a TODO"]
+   [:input {:type "text" :value @todo-to-add :on-change #(reset! todo-to-add (-> % .-target .-value))}]
+   [:input {:type "button" :value "Add" :on-click #(do
+                                                    (add-todo {"description" @todo-to-add})
+                                                    (reset! todo-to-add ""))}]])
 
 (defn todo-app []
   (get-todos)
   [:div [:h2 "Welcome to the TODO app"]
-   [todo-list]])
+   [todo-list]
+   [add-todo-form]])
 
 ;; -------------------------
 ;; Initialize app
