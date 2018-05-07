@@ -2,12 +2,20 @@
     (:require
       [reagent.core :as r]
       [ajax.core :as ajax]))
+(def api-url "https://cvm3yhffx8.execute-api.eu-central-1.amazonaws.com/latest/todos")
+
 
 (def todos (r/atom []))
 (defn get-todos
   []
-  (ajax/GET "https://cvm3yhffx8.execute-api.eu-central-1.amazonaws.com/latest/todos"
+  (ajax/GET api-url
             {:handler #(reset! todos %)}))
+
+(defn add-todo
+  [todo]
+  (ajax/POST api-url {:params todo
+              :format :json
+              :handler get-todos}))
 
 ;; -------------------------
 ;; Views
