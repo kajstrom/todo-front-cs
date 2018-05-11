@@ -18,14 +18,21 @@
               :format :json
               :handler get-todos}))
 
+(defn update-todo
+  [todo]
+  (ajax/PUT (str api-url "/" (get todo "todoId")) {:params todo
+                                                  :format :json
+                                                  :handler get-todos}))
+
 ;; -------------------------
 ;; Views
 (defn todo-list-item
   [todo]
-  [:div
-   [:input {:type "checkbox"
-            :checked (get todo "done")}]
-   [:span (get todo "description")]])
+  ^{:key (get todo "todoId")} [:div
+     [:input {:type "checkbox"
+              :checked (get todo "done")
+              :on-change #(update-todo (update todo "done" not))}]
+     [:span (get todo "description")]])
 
 (defn todo-list
   []
