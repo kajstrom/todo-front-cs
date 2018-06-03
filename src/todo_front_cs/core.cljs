@@ -50,12 +50,15 @@
   [todo]
   (let [todoId (:todoId todo)]
     ^{:key todoId} [:div
-                                 [:input {:type "checkbox"
-                                          :checked (:done todo)
-                                          :on-change #(update-todo (update todo :done not))}]
-                                 [:input {:type "text"
-                                          :value (:description todo)
-                                          :on-change #(update-todo (assoc todo :description (-> % .-target .-value)))}]]))
+                    [:input {:type "checkbox"
+                            :checked (:done todo)
+                            :on-change #(update-todo (update todo :done not))}]
+                    [:input {:type "text"
+                            :value (:description todo)
+                            :on-change #(update-todo (assoc todo :description (-> % .-target .-value)))}]
+                    [:input {:type "button"
+                             :value "Save"
+                             :on-click #(save-todo todo)}]]))
 
 (defn todo-list
   []
