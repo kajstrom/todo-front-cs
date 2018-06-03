@@ -6,7 +6,6 @@
 
 
 (def todos (r/atom []))
-(def todo-to-add (r/atom ""))
 
 (defn positions
   "https://stackoverflow.com/questions/4830900/how-do-i-find-the-index-of-an-item-in-a-vector"
@@ -66,12 +65,14 @@
 
 (defn add-todo-form
   []
-  [:div
-   [:h3 "Add a TODO"]
-   [:input {:type "text" :value @todo-to-add :on-change #(reset! todo-to-add (-> % .-target .-value))}]
-   [:input {:type "button" :value "Add" :on-click #(do
-                                                    (add-todo {:description @todo-to-add})
-                                                    (reset! todo-to-add ""))}]])
+  (let [new-todo (r/atom "")]
+    (fn []
+      [:div
+       [:h3 "Add a TODO"]
+       [:input {:type "text" :value @new-todo :on-change #(reset! new-todo (-> % .-target .-value))}]
+       [:input {:type "button" :value "Add" :on-click #(do
+                                                        (add-todo {:description @new-todo})
+                                                        (reset! new-todo ""))}]])))
 
 (defn todo-app []
   (get-todos)
