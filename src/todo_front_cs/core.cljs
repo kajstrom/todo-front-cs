@@ -17,15 +17,15 @@
                 coll))
 
 (defn find-todo-idx [todo]
-  (let [todoId (get todo "todoId")]
-    (first (positions #(= todoId (get % "todoId")) @todos))))
+  (let [todoId (:todoId todo)]
+    (first (positions #(= todoId (:todoId %)) @todos))))
 
 (defn get-todos
   []
   (ajax/GET api-url
             {:handler #(reset! todos %)
              :response-format :json
-             :keywords? false}))
+             :keywords? true}))
 
 (defn add-todo
   [todo]
@@ -34,13 +34,13 @@
               :handler get-todos}))
 
 (defn update-todo [todo]
-  (let [todoId (get todo "todoId")
+  (let [todoId (:todoId todo)
         idx (find-todo-idx todo)]
     (swap! todos assoc-in [idx] todo)))
 
 (defn save-todo
   [todo]
-  (ajax/PUT (str api-url "/" (get todo "todoId")) {:params todo
+  (ajax/PUT (str api-url "/" (:todoId todo)) {:params todo
                                                   :format :json
                                                   :handler get-todos}))
 
@@ -48,14 +48,14 @@
 ;; Views
 (defn todo-list-item
   [todo]
-  (let [todoId (get todo "todoId")]
+  (let [todoId (:todoId todo)]
     ^{:key todoId} [:div
                                  [:input {:type "checkbox"
-                                          :checked (get todo "done")
-                                          :on-change #(update-todo (update todo "done" not))}]
+                                          :checked (:done todo)
+                                          :on-change #(update-todo (update todo :done not))}]
                                  [:input {:type "text"
-                                          :value (get todo "description")
-                                          :on-change #(update-todo (assoc todo "description" (-> % .-target .-value)))}]]))
+                                          :value (:description todo)
+                                          :on-change #(update-todo (assoc todo :description (-> % .-target .-value)))}]]))
 
 (defn todo-list
   []
@@ -67,7 +67,7 @@
    [:h3 "Add a TODO"]
    [:input {:type "text" :value @todo-to-add :on-change #(reset! todo-to-add (-> % .-target .-value))}]
    [:input {:type "button" :value "Add" :on-click #(do
-                                                    (add-todo {"description" @todo-to-add})
+                                                    (add-todo {:description @todo-to-add})
                                                     (reset! todo-to-add ""))}]])
 
 (defn todo-app []
