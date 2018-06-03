@@ -7,10 +7,25 @@
 
 (def todos (r/atom []))
 (def todo-to-add (r/atom ""))
+
+(defn positions
+  "https://stackoverflow.com/questions/4830900/how-do-i-find-the-index-of-an-item-in-a-vector"
+  [pred coll]
+  (keep-indexed (fn [idx x]
+                  (when (pred x)
+                    idx))
+                coll))
+
+(defn find-todo-idx [todo]
+  (let [todoId (get todo "todoId")]
+    (first (positions #(= todoId (get % "todoId")) @todos))))
+
 (defn get-todos
   []
   (ajax/GET api-url
-            {:handler #(reset! todos %)}))
+            {:handler #(reset! todos %)
+             :response-format :json
+             :keywords? false}))
 
 (defn add-todo
   [todo]
@@ -18,7 +33,12 @@
               :format :json
               :handler get-todos}))
 
-(defn update-todo
+(defn update-todo [todo]
+  (let [todoId (get todo "todoId")
+        idx (find-todo-idx todo)]
+    (swap! todos assoc-in [idx] todo)))
+
+(defn save-todo
   [todo]
   (ajax/PUT (str api-url "/" (get todo "todoId")) {:params todo
                                                   :format :json
@@ -28,11 +48,14 @@
 ;; Views
 (defn todo-list-item
   [todo]
-  ^{:key (get todo "todoId")} [:div
-     [:input {:type "checkbox"
-              :checked (get todo "done")
-              :on-change #(update-todo (update todo "done" not))}]
-     [:span (get todo "description")]])
+  (let [todoId (get todo "todoId")]
+    ^{:key todoId} [:div
+                                 [:input {:type "checkbox"
+                                          :checked (get todo "done")
+                                          :on-change #(update-todo (update todo "done" not))}]
+                                 [:input {:type "text"
+                                          :value (get todo "description")
+                                          :on-change #(update-todo (assoc todo "description" (-> % .-target .-value)))}]]))
 
 (defn todo-list
   []
