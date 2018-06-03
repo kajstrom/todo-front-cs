@@ -1,3 +1,4 @@
+Yet another todo app. Try it out <http://serverless-todo-front.s3-website.eu-central-1.amazonaws.com/cljs/index.html>
 
 ### Development mode
 
