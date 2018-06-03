@@ -7,22 +7,13 @@
 
 (def todos (r/atom []))
 
-(defn positions
-  "https://stackoverflow.com/questions/4830900/how-do-i-find-the-index-of-an-item-in-a-vector"
-  [pred coll]
-  (keep-indexed (fn [idx x]
-                  (when (pred x)
-                    idx))
-                coll))
-
-(defn find-todo-idx [todo]
-  (let [todoId (:todoId todo)]
-    (first (positions #(= todoId (:todoId %)) @todos))))
+(defn handle-respose [response]
+  (into (hash-map) (map #(hash-map (:todoId %) %) response)))
 
 (defn get-todos
   []
   (ajax/GET api-url
-            {:handler #(reset! todos %)
+            {:handler #(reset! todos (handle-respose %))
              :response-format :json
              :keywords? true}))
 
@@ -33,9 +24,8 @@
               :handler get-todos}))
 
 (defn update-todo [todo]
-  (let [todoId (:todoId todo)
-        idx (find-todo-idx todo)]
-    (swap! todos assoc-in [idx] todo)))
+  (let [todoId (:todoId todo)]
+    (swap! todos assoc-in [todoId] todo)))
 
 (defn save-todo
   [todo]
@@ -61,7 +51,7 @@
 
 (defn todo-list
   []
-  [:div (map todo-list-item @todos)])
+  [:div (map todo-list-item (vals @todos))])
 
 (defn add-todo-form
   []
